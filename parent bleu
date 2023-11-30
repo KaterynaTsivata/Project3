@@ -1,0 +1,61 @@
+# Imports go at the top
+import radio
+radio.config(group=23)
+from microbit import *
+import music
+import speech
+
+# Code in a 'while True:' loop repeats forever
+milk = 0
+milk_doze = 50 #ml
+sent_love = False
+message_love = "love"
+radio.on()
+
+while True:
+    if button_a.get_presses() == 3:
+        display.show(Image.DUCK)
+    
+    #pour ajouter le lait
+    if button_a.is_pressed():
+        milk += milk_doze
+        display.show(Image.YES) 
+        sleep(400)
+        display.scroll(milk)       
+        radio.send(str(milk) + "ml")
+
+    #pour supprimer le lait
+    if button_b.is_pressed():
+        if milk > 0:
+            milk -= milk_doze
+            display.show(Image.NO)
+            sleep(400)
+            display.scroll(milk)
+        else:
+            #ce code ne permet pas d'introduire des valeurs négatives
+            milk = 0
+        radio.send(str(milk) + "ml")
+
+    #pour annuler
+    if button_a.is_pressed() and button_b.is_pressed():
+        milk = 0
+        display.scroll(milk) #pour affisher sur bebi de parent
+        radio.send(str(milk) + "ml") #pour affisher sur bebi de enfant
+
+    #le traitement des données relatives à l'état de l'enfant  
+    message = radio.receive()
+    
+    #si agite, il envoie un message à la bebi de parent
+    if message == "agite":
+        display.scroll(message)
+
+    #si tres agite, il envoie une alarme à la bebi de parent
+    if message == "tres agite":
+        display.scroll(message)
+        set_volume(128)        
+        audio.play(Sound.SOARING)
+
+    #pour distange le 2 bebi
+    if pin_logo.is_touched():
+        display.show(Image.HOUSE)
+        speech.say('PARENTS')
